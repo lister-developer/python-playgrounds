@@ -9,3 +9,25 @@ dependencies = [
 [build-system]
 requires = ["flit_core<4"]
 build-backend = "flit_core.buildapi"
+
+
+select * from (
+
+select
+ci.alias_name aliasName,
+ci.data_source_type dataSourceType,
+ddd.dict_name AS `dbName`,
+ci.host AS host,
+ci.port as port,
+ci.id datasource,
+dds.dict_id minorId,
+dds.parent_dict_id parentMinorId,
+ci.delete_flag,
+ci.data_source_type
+FROM data_dict dds
+INNER JOIN data_dict ddd ON ddd.dict_id = dds.parent_dict_id
+INNER JOIN connect_info ci ON dds.server_id = ci.id
+WHERE dds.server_type = 'DB' AND dds.dict_type = 'SCHEMA'
+) t
+WHERE t.delete_flag = 0
+order by t.data_source_type, t.datasource
